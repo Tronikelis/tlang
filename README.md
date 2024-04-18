@@ -22,6 +22,7 @@ And some operators
 
 ```
 myVar++
+myVar--
 myVar += 1
 myVar -= 1
 myVar /= 2
