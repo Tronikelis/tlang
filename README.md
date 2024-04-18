@@ -61,7 +61,7 @@ let longest = sum(
 )
 ```
 
-We have closures, they are fucking awesome
+We have closures, they are awesome
 
 ```
 let createMultiply = fn(by) {
