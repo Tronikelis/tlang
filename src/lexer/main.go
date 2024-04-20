@@ -1,38 +1,40 @@
 package lexer
 
-type TokenType = int
+import "fmt"
+
+type TokenType = string
 
 const (
-	LET TokenType = iota + 1
-	IDENTIFIER
-
-	FUNCTION
-	IF
-	WHILE
-	FOR
-	IN
-	RETURN
-
-	NUMBER
-	BOOL
-	STRING
-
-	EQUALS
-	PLUS
-	MINUS
-	SLASH
-	STAR
-
-	COMMA
-	OPEN_PARENTHESES
-	CLOSE_PARENTHESES
-	OPEN_CURLY
-	CLOSE_CURLY
-	OPEN_SQUARE
-	CLOSE_SQUARE
+	LET               TokenType = "let"
+	IDENTIFIER                  = "identifier"
+	FUNCTION                    = "function"
+	IF                          = "if"
+	WHILE                       = "while"
+	FOR                         = "for"
+	IN                          = "in"
+	RETURN                      = "return"
+	NUMBER                      = "number"
+	BOOL                        = "bool"
+	STRING                      = "string"
+	EQUALS                      = "equals"
+	PLUS                        = "plus"
+	MINUS                       = "minus"
+	SLASH                       = "slash"
+	STAR                        = "star"
+	COMMA                       = "comma"
+	OPEN_PARENTHESES            = "open_parentheses"
+	CLOSE_PARENTHESES           = "close_parentheses"
+	OPEN_CURLY                  = "open_curly"
+	CLOSE_CURLY                 = "close_curly"
+	OPEN_SQUARE                 = "open_square"
+	CLOSE_SQUARE                = "close_square"
+	TRUE                        = "true"
+	FALSE                       = "false"
+	ELSE                        = "else"
 )
 
 var keywordMap = map[string]TokenType{
+	"in":     IN,
 	"if":     IF,
 	"for":    FOR,
 	"let":    LET,
@@ -50,24 +52,14 @@ var keywordMap = map[string]TokenType{
 	"/":      SLASH,
 	",":      COMMA,
 	"return": RETURN,
+	"true":   TRUE,
+	"false":  FALSE,
+	"else":   ELSE,
 }
-
-var maxKeywordLen = func() int {
-	count := 0
-	for key := range keywordMap {
-		if len(key) < count {
-			continue
-		}
-
-		count = len(key)
-	}
-
-	return count
-}()
 
 type Token struct {
 	Raw  string
-	Type int
+	Type TokenType
 }
 
 type Lexer struct {
@@ -88,18 +80,17 @@ func isWhitespace(b byte) bool {
 
 func isNumber(b byte) bool {
 	return b >= '0' && b <= '9'
-
 }
 
 func isLetter(b byte) bool {
 	return !isNumber(b) && !isWhitespace(b)
 }
 
-// 0 means unknown keyword
+// "" means unknown keyword
 func parseKeyword(s string) TokenType {
 	keyword, exists := keywordMap[s]
 	if !exists {
-		return 0
+		return ""
 	}
 
 	return keyword
@@ -113,7 +104,7 @@ func (lexer *Lexer) parseString() string {
 			return true
 		}
 
-		return lexer.peekNext() != '"'
+		return lexer.peekCurrent() != '"'
 	}
 
 	for shouldContinue() {
@@ -180,7 +171,7 @@ func (lexer *Lexer) readNext() *Token {
 		return nil
 	}
 
-	if parseKeyword(string(current)) != 0 {
+	if parseKeyword(string(current)) != "" {
 		lexer.pointer++
 		return &Token{
 			Raw:  string(current),
@@ -201,7 +192,6 @@ func (lexer *Lexer) readNext() *Token {
 
 	if isNumber(current) {
 		raw := lexer.parseNumber()
-		lexer.pointer++
 
 		return &Token{
 			Raw:  raw,
@@ -215,26 +205,23 @@ func (lexer *Lexer) readNext() *Token {
 	// next exists
 	lexer.peekNext() != 0 &&
 		// next is not a keyword
-		parseKeyword(string(lexer.peekNext())) == 0 &&
+		parseKeyword(string(lexer.peekNext())) == "" &&
 		// next is not whitespace
 		!isWhitespace(lexer.peekNext()) {
 
 		raw += string(lexer.peekNext())
 		lexer.pointer++
-
-		maybeKeyword := parseKeyword(raw)
-		if maybeKeyword != 0 {
-			lexer.pointer++
-
-			return &Token{
-				Raw:  raw,
-				Type: maybeKeyword,
-			}
-		}
-
 	}
 
 	lexer.pointer++
+
+	maybeKeyword := parseKeyword(raw)
+	if maybeKeyword != "" {
+		return &Token{
+			Raw:  raw,
+			Type: maybeKeyword,
+		}
+	}
 
 	return &Token{
 		Raw:  raw,
@@ -253,4 +240,10 @@ func (lexer *Lexer) Parse() []Token {
 	}
 
 	return tokens
+}
+
+func PrintTokens(tokens []Token) {
+	for _, value := range tokens {
+		fmt.Printf("%+v\n", value)
+	}
 }

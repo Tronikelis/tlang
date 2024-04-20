@@ -6,3 +6,12 @@ let a = 20
 let b = 21
 
 let c = sum(a, b)
+
+
+for index, value in [1, 2, 3] {
+
+}
+
+for key, value in {key = "value"} {
+
+}
