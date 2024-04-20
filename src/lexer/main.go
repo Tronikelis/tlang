@@ -1,6 +1,9 @@
 package lexer
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 type TokenType = string
 
@@ -100,7 +103,12 @@ func (lexer *Lexer) parseString() string {
 	raw := ""
 
 	shouldContinue := func() bool {
+		if lexer.peekCurrent() == 0 {
+			log.Fatal("string literal did not end")
+		}
+
 		if lexer.peekCurrent() == '\\' && lexer.peekNext() == '"' {
+			lexer.pointer++
 			return true
 		}
 

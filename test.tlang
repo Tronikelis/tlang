@@ -1,4 +1,4 @@
-let sum = fn(a, b) {
+let sum=fn(a, b) {
     return a + b
 }
 
@@ -6,7 +6,6 @@ let a = 20
 let b = 21
 
 let c = sum(a, b)
-
 
 for index, value in [1, 2, 3] {
 
