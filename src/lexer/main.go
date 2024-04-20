@@ -37,13 +37,13 @@ type Token struct {
 	Type int
 }
 
-type Parser struct {
+type Lexer struct {
 	script  string
 	pointer int
 }
 
-func NewParser(script string) *Parser {
-	return &Parser{
+func NewLexer(script string) *Lexer {
+	return &Lexer{
 		pointer: 0,
 		script:  script,
 	}
@@ -100,26 +100,39 @@ func parseKeyword(s string) TokenType {
 	return 0
 }
 
-func (parser *Parser) readAtPointer() byte {
-	if len(parser.script)-1 < parser.pointer {
+func (lexer *Lexer) readAtPointer() byte {
+	if len(lexer.script)-1 < lexer.pointer {
 		return 0
 	}
 
-	b := parser.script[parser.pointer]
+	b := lexer.script[lexer.pointer]
 
 	return b
 }
 
-func (parser *Parser) consumeWhitespace() {
-	for isWhitespace(parser.readAtPointer()) {
-		parser.pointer++
+func (lexer *Lexer) consumeWhitespace() {
+	for isWhitespace(lexer.readAtPointer()) {
+		lexer.pointer++
 	}
 }
 
-func (parser *Parser) readNext() *Token {
-	parser.consumeWhitespace()
+func (lexer *Lexer) consumeNonWhitespace() string {
+	current := lexer.readAtPointer()
+	read := ""
 
-	current := parser.readAtPointer()
+	for !isWhitespace(current) {
+		read += string(current)
+		lexer.pointer++
+		current = lexer.readAtPointer()
+	}
+
+	return read
+}
+
+func (lexer *Lexer) readNext() *Token {
+	lexer.consumeWhitespace()
+
+	current := lexer.readAtPointer()
 	if current == 0 {
 		return nil
 	}
@@ -134,28 +147,22 @@ func (parser *Parser) readNext() *Token {
 		return &Token{}
 	}
 
-	raw := ""
+	nonWhitespace := lexer.consumeNonWhitespace()
 
-	for !isWhitespace(current) {
-		raw += string(current)
-		parser.pointer++
-		current = parser.readAtPointer()
-	}
-
-	keyword := parseKeyword(raw)
+	keyword := parseKeyword(nonWhitespace)
 	if keyword != 0 {
 		return &Token{
-			Raw:  raw,
+			Raw:  nonWhitespace,
 			Type: keyword,
 		}
 	}
 
 	return &Token{
-		Raw:  raw,
+		Raw:  nonWhitespace,
 		Type: IDENTIFIER,
 	}
 }
 
-func (parser *Parser) Parse() []Token {
+func (lexer *Lexer) Parse() []Token {
 	return []Token{}
 }
