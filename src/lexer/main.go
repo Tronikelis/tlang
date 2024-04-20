@@ -100,7 +100,34 @@ func parseKeyword(s string) TokenType {
 	return 0
 }
 
-func (lexer *Lexer) readAtPointer() byte {
+func (lexer *Lexer) parseString() string {
+	raw := ""
+
+	shouldContinue := func() bool {
+		if lexer.peekCurrent() == '\\' && lexer.peekNext() == '"' {
+			return true
+		}
+
+		return lexer.peekNext() != '"'
+	}
+
+	for shouldContinue() {
+		raw += string(lexer.peekCurrent())
+		lexer.pointer++
+	}
+
+	return raw
+}
+
+func (lexer *Lexer) peekNext() byte {
+	lexer.pointer++
+	peeked := lexer.peekCurrent()
+	lexer.pointer--
+	return peeked
+
+}
+
+func (lexer *Lexer) peekCurrent() byte {
 	if len(lexer.script)-1 < lexer.pointer {
 		return 0
 	}
@@ -111,19 +138,19 @@ func (lexer *Lexer) readAtPointer() byte {
 }
 
 func (lexer *Lexer) consumeWhitespace() {
-	for isWhitespace(lexer.readAtPointer()) {
+	for isWhitespace(lexer.peekCurrent()) {
 		lexer.pointer++
 	}
 }
 
 func (lexer *Lexer) consumeNonWhitespace() string {
-	current := lexer.readAtPointer()
+	current := lexer.peekCurrent()
 	read := ""
 
 	for !isWhitespace(current) {
 		read += string(current)
 		lexer.pointer++
-		current = lexer.readAtPointer()
+		current = lexer.peekCurrent()
 	}
 
 	return read
@@ -132,14 +159,20 @@ func (lexer *Lexer) consumeNonWhitespace() string {
 func (lexer *Lexer) readNext() *Token {
 	lexer.consumeWhitespace()
 
-	current := lexer.readAtPointer()
+	current := lexer.peekCurrent()
 	if current == 0 {
 		return nil
 	}
 
 	if current == '"' {
-		// parse string
-		return &Token{}
+		lexer.pointer++
+		raw := lexer.parseString()
+		lexer.pointer++
+
+		return &Token{
+			Raw:  raw,
+			Type: STRING,
+		}
 	}
 
 	if isNumber(current) {
