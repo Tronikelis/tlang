@@ -3,7 +3,6 @@ package main
 import (
 	"log"
 	"os"
-	"strings"
 	"tlang/src/lexer"
 )
 
@@ -20,10 +19,6 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	scriptString := string(scriptBytes)
-	scriptString = strings.ReplaceAll("\r\n", "\n", scriptString)
-	scriptString = strings.ReplaceAll("\r", "\n", scriptString)
 
 	tokens := lexer.NewLexer(string(scriptBytes)).Parse()
 
