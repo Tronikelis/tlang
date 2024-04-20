@@ -124,19 +124,6 @@ func (lexer *Lexer) consumeWhitespace() {
 	}
 }
 
-func (lexer *Lexer) consumeNonWhitespace() string {
-	current := lexer.peekCurrent()
-	read := ""
-
-	for !isWhitespace(current) {
-		read += string(current)
-		lexer.pointer++
-		current = lexer.peekCurrent()
-	}
-
-	return read
-}
-
 func (lexer *Lexer) readNext() *tokens.Token {
 	lexer.consumeWhitespace()
 
