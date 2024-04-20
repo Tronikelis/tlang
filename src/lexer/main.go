@@ -29,6 +29,7 @@ var keywordMap = map[string]tokens.TokenType{
 	"false":  tokens.FALSE,
 	"else":   tokens.ELSE,
 	".":      tokens.DOT,
+	"while":  tokens.WHILE,
 }
 
 type Lexer struct {
@@ -44,7 +45,7 @@ func NewLexer(script string) *Lexer {
 }
 
 func isWhitespace(b byte) bool {
-	return b == '\n' || b == ' ' || b == '\r'
+	return b == '\n' || b == ' ' || b == '\r' || b == '\t'
 }
 
 func isNumber(b byte) bool {
@@ -118,9 +119,29 @@ func (lexer *Lexer) peekCurrent() byte {
 	return b
 }
 
+func (lexer *Lexer) consumeUntilWith(b byte) {
+	for lexer.peekCurrent() != b {
+		lexer.pointer++
+	}
+
+	lexer.pointer++
+}
+
 func (lexer *Lexer) consumeWhitespace() {
+	removed := 0
+
 	for isWhitespace(lexer.peekCurrent()) {
 		lexer.pointer++
+		removed++
+	}
+
+	if removed == 0 {
+		return
+	}
+
+	for lexer.peekCurrent() == '/' && lexer.peekNext() == '/' {
+		lexer.consumeUntilWith('\n')
+		lexer.consumeWhitespace()
 	}
 }
 

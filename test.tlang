@@ -12,5 +12,15 @@ for index, value in [1, 2, 3] {
 }
 
 for key, value in {key = "value"} {
-
+    // what's up
 }
+
+sum(
+    fn() {
+        // what's up
+    }
+)
+
+//sum(fn() {
+//    // what's up
+//})
