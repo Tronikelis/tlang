@@ -1,13 +1,9 @@
 package lexer
 
-import (
-	"fmt"
-)
-
 type TokenType = int
 
 const (
-	LET TokenType = iota
+	LET TokenType = iota + 1
 	IDENTIFIER
 
 	FUNCTION
@@ -43,7 +39,7 @@ type Token struct {
 
 type Parser struct {
 	script  string
-	pointer uint
+	pointer int
 }
 
 func NewParser(script string) *Parser {
@@ -53,18 +49,30 @@ func NewParser(script string) *Parser {
 	}
 }
 
-func isWhitespace(r byte) bool {
-	return r == '\n' || r == ' '
+func isWhitespace(b byte) bool {
+	return b == '\n' || b == ' ' || b == '\r'
 }
 
-func checkType(raw string) TokenType {
-	switch raw {
+func isNumber(b byte) bool {
+	return b >= '0' && b <= '9'
+
+}
+
+func isLetter(b byte) bool {
+	return !isNumber(b) && !isWhitespace(b)
+}
+
+// 0 means unknown keyword
+func parseKeyword(s string) TokenType {
+	switch s {
 	case "if":
 		return IF
 	case "for":
 		return FOR
 	case "let":
 		return LET
+	case "fn":
+		return FUNCTION
 	case "=":
 		return EQUALS
 	case "(":
@@ -87,45 +95,67 @@ func checkType(raw string) TokenType {
 		return STAR
 	case "/":
 		return SLASH
+	}
 
-	default:
-		return IDENTIFIER
+	return 0
+}
+
+func (parser *Parser) readAtPointer() byte {
+	if len(parser.script)-1 < parser.pointer {
+		return 0
+	}
+
+	b := parser.script[parser.pointer]
+
+	return b
+}
+
+func (parser *Parser) consumeWhitespace() {
+	for isWhitespace(parser.readAtPointer()) {
+		parser.pointer++
 	}
 }
 
-func (parser *Parser) readNext() (uint, Token) {
-	pointer := parser.pointer
+func (parser *Parser) readNext() *Token {
+	parser.consumeWhitespace()
 
-	char := func() byte {
-		return parser.script[pointer]
+	current := parser.readAtPointer()
+	if current == 0 {
+		return nil
 	}
 
-	for isWhitespace(char()) {
-		pointer += 1
+	if current == '"' {
+		// parse string
+		return &Token{}
+	}
+
+	if isNumber(current) {
+		// parse number
+		return &Token{}
 	}
 
 	raw := ""
 
-	for !isWhitespace(char()) {
-		raw += string(char())
-		pointer += 1
+	for !isWhitespace(current) {
+		raw += string(current)
+		parser.pointer++
+		current = parser.readAtPointer()
 	}
 
-	token := Token{
+	keyword := parseKeyword(raw)
+	if keyword != 0 {
+		return &Token{
+			Raw:  raw,
+			Type: keyword,
+		}
+	}
+
+	return &Token{
 		Raw:  raw,
-		Type: 0,
+		Type: IDENTIFIER,
 	}
-
-	return pointer, token
-}
-
-func (parser *Parser) readNextAndConsume() Token {
-	read, token := parser.readNext()
-	parser.pointer += read
-	return token
 }
 
 func (parser *Parser) Parse() []Token {
-	fmt.Println(parser.readNextAndConsume())
 	return []Token{}
 }
