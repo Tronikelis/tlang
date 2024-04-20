@@ -28,6 +28,7 @@ var keywordMap = map[string]tokens.TokenType{
 	"true":   tokens.TRUE,
 	"false":  tokens.FALSE,
 	"else":   tokens.ELSE,
+	".":      tokens.DOT,
 }
 
 type Lexer struct {

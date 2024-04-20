@@ -29,6 +29,7 @@ const (
 	TRUE                        = "true"
 	FALSE                       = "false"
 	ELSE                        = "else"
+	DOT                         = "dot"
 )
 
 type Token struct {
