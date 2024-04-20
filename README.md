@@ -121,3 +121,25 @@ if cute {
 ```
 
 Same line `if true return` are **NOT** supported
+
+## Loops
+
+For loops are similar to go
+
+```
+for index, value in [1, 2, 3] {
+
+}
+
+for key, value in {key = "value"} {
+
+}
+```
+
+While loops
+
+```
+while true {
+    // yes
+}
+```
