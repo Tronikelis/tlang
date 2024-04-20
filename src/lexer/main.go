@@ -119,6 +119,17 @@ func (lexer *Lexer) parseString() string {
 	return raw
 }
 
+func (lexer *Lexer) parseNumber() string {
+	raw := ""
+
+	for isNumber(lexer.peekCurrent()) || lexer.peekCurrent() == '.' {
+		raw += string(lexer.peekCurrent())
+		lexer.pointer++
+	}
+
+	return raw
+}
+
 func (lexer *Lexer) peekNext() byte {
 	lexer.pointer++
 	peeked := lexer.peekCurrent()
@@ -176,8 +187,13 @@ func (lexer *Lexer) readNext() *Token {
 	}
 
 	if isNumber(current) {
-		// parse number
-		return &Token{}
+		raw := lexer.parseNumber()
+		lexer.pointer++
+
+		return &Token{
+			Raw:  raw,
+			Type: NUMBER,
+		}
 	}
 
 	nonWhitespace := lexer.consumeNonWhitespace()
