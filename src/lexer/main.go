@@ -3,66 +3,31 @@ package lexer
 import (
 	"fmt"
 	"log"
+	"tlang/src/tokens"
 )
 
-type TokenType = string
-
-const (
-	LET               TokenType = "let"
-	IDENTIFIER                  = "identifier"
-	FUNCTION                    = "function"
-	IF                          = "if"
-	WHILE                       = "while"
-	FOR                         = "for"
-	IN                          = "in"
-	RETURN                      = "return"
-	NUMBER                      = "number"
-	BOOL                        = "bool"
-	STRING                      = "string"
-	EQUALS                      = "equals"
-	PLUS                        = "plus"
-	MINUS                       = "minus"
-	SLASH                       = "slash"
-	STAR                        = "star"
-	COMMA                       = "comma"
-	OPEN_PARENTHESES            = "open_parentheses"
-	CLOSE_PARENTHESES           = "close_parentheses"
-	OPEN_CURLY                  = "open_curly"
-	CLOSE_CURLY                 = "close_curly"
-	OPEN_SQUARE                 = "open_square"
-	CLOSE_SQUARE                = "close_square"
-	TRUE                        = "true"
-	FALSE                       = "false"
-	ELSE                        = "else"
-)
-
-var keywordMap = map[string]TokenType{
-	"in":     IN,
-	"if":     IF,
-	"for":    FOR,
-	"let":    LET,
-	"fn":     FUNCTION,
-	"=":      EQUALS,
-	"(":      OPEN_PARENTHESES,
-	")":      CLOSE_PARENTHESES,
-	"{":      OPEN_CURLY,
-	"}":      CLOSE_CURLY,
-	"[":      OPEN_SQUARE,
-	"]":      CLOSE_SQUARE,
-	"-":      MINUS,
-	"+":      PLUS,
-	"*":      STAR,
-	"/":      SLASH,
-	",":      COMMA,
-	"return": RETURN,
-	"true":   TRUE,
-	"false":  FALSE,
-	"else":   ELSE,
-}
-
-type Token struct {
-	Raw  string
-	Type TokenType
+var keywordMap = map[string]tokens.TokenType{
+	"in":     tokens.IN,
+	"if":     tokens.IF,
+	"for":    tokens.FOR,
+	"let":    tokens.LET,
+	"fn":     tokens.FUNCTION,
+	"=":      tokens.EQUALS,
+	"(":      tokens.OPEN_PARENTHESES,
+	")":      tokens.CLOSE_PARENTHESES,
+	"{":      tokens.OPEN_CURLY,
+	"}":      tokens.CLOSE_CURLY,
+	"[":      tokens.OPEN_SQUARE,
+	"]":      tokens.CLOSE_SQUARE,
+	"-":      tokens.MINUS,
+	"+":      tokens.PLUS,
+	"*":      tokens.STAR,
+	"/":      tokens.SLASH,
+	",":      tokens.COMMA,
+	"return": tokens.RETURN,
+	"true":   tokens.TRUE,
+	"false":  tokens.FALSE,
+	"else":   tokens.ELSE,
 }
 
 type Lexer struct {
@@ -90,7 +55,7 @@ func isLetter(b byte) bool {
 }
 
 // "" means unknown keyword
-func parseKeyword(s string) TokenType {
+func parseKeyword(s string) tokens.TokenType {
 	keyword, exists := keywordMap[s]
 	if !exists {
 		return ""
@@ -171,7 +136,7 @@ func (lexer *Lexer) consumeNonWhitespace() string {
 	return read
 }
 
-func (lexer *Lexer) readNext() *Token {
+func (lexer *Lexer) readNext() *tokens.Token {
 	lexer.consumeWhitespace()
 
 	current := lexer.peekCurrent()
@@ -181,7 +146,7 @@ func (lexer *Lexer) readNext() *Token {
 
 	if parseKeyword(string(current)) != "" {
 		lexer.pointer++
-		return &Token{
+		return &tokens.Token{
 			Raw:  string(current),
 			Type: parseKeyword(string(current)),
 		}
@@ -192,18 +157,18 @@ func (lexer *Lexer) readNext() *Token {
 		raw := lexer.parseString()
 		lexer.pointer++
 
-		return &Token{
+		return &tokens.Token{
 			Raw:  raw,
-			Type: STRING,
+			Type: tokens.STRING,
 		}
 	}
 
 	if isNumber(current) {
 		raw := lexer.parseNumber()
 
-		return &Token{
+		return &tokens.Token{
 			Raw:  raw,
-			Type: NUMBER,
+			Type: tokens.NUMBER,
 		}
 	}
 
@@ -225,21 +190,21 @@ func (lexer *Lexer) readNext() *Token {
 
 	maybeKeyword := parseKeyword(raw)
 	if maybeKeyword != "" {
-		return &Token{
+		return &tokens.Token{
 			Raw:  raw,
 			Type: maybeKeyword,
 		}
 	}
 
-	return &Token{
+	return &tokens.Token{
 		Raw:  raw,
-		Type: IDENTIFIER,
+		Type: tokens.IDENTIFIER,
 	}
 
 }
 
-func (lexer *Lexer) Parse() []Token {
-	tokens := []Token{}
+func (lexer *Lexer) Parse() []tokens.Token {
+	tokens := []tokens.Token{}
 
 	nextToken := lexer.readNext()
 	for nextToken != nil {
@@ -250,7 +215,7 @@ func (lexer *Lexer) Parse() []Token {
 	return tokens
 }
 
-func PrintTokens(tokens []Token) {
+func PrintTokens(tokens []tokens.Token) {
 	for _, value := range tokens {
 		fmt.Printf("%+v\n", value)
 	}
