@@ -32,6 +32,37 @@ const (
 	CLOSE_SQUARE
 )
 
+var keywordMap = map[string]TokenType{
+	"if":  IF,
+	"for": FOR,
+	"let": LET,
+	"fn":  FUNCTION,
+	"=":   EQUALS,
+	"(":   OPEN_PARENTHESES,
+	")":   CLOSE_PARENTHESES,
+	"{":   OPEN_CURLY,
+	"}":   CLOSE_CURLY,
+	"[":   OPEN_SQUARE,
+	"]":   CLOSE_SQUARE,
+	"-":   MINUS,
+	"+":   PLUS,
+	"*":   STAR,
+	"/":   SLASH,
+}
+
+var maxKeywordLen = func() int {
+	count := 0
+	for key := range keywordMap {
+		if len(key) < count {
+			continue
+		}
+
+		count = len(key)
+	}
+
+	return count
+}()
+
 type Token struct {
 	Raw  string
 	Type int
@@ -64,40 +95,12 @@ func isLetter(b byte) bool {
 
 // 0 means unknown keyword
 func parseKeyword(s string) TokenType {
-	switch s {
-	case "if":
-		return IF
-	case "for":
-		return FOR
-	case "let":
-		return LET
-	case "fn":
-		return FUNCTION
-	case "=":
-		return EQUALS
-	case "(":
-		return OPEN_PARENTHESES
-	case ")":
-		return CLOSE_PARENTHESES
-	case "{":
-		return OPEN_CURLY
-	case "}":
-		return CLOSE_CURLY
-	case "[":
-		return OPEN_SQUARE
-	case "]":
-		return CLOSE_SQUARE
-	case "-":
-		return MINUS
-	case "+":
-		return PLUS
-	case "*":
-		return STAR
-	case "/":
-		return SLASH
+	keyword, exists := keywordMap[s]
+	if !exists {
+		return 0
 	}
 
-	return 0
+	return keyword
 }
 
 func (lexer *Lexer) parseString() string {
@@ -196,18 +199,23 @@ func (lexer *Lexer) readNext() *Token {
 		}
 	}
 
-	nonWhitespace := lexer.consumeNonWhitespace()
+	raw := ""
 
-	keyword := parseKeyword(nonWhitespace)
-	if keyword != 0 {
-		return &Token{
-			Raw:  nonWhitespace,
-			Type: keyword,
+	for !isWhitespace(lexer.peekCurrent()) {
+		raw += string(lexer.peekCurrent())
+
+		maybeKeyword := parseKeyword(raw)
+
+		if len(raw) <= maxKeywordLen && maybeKeyword != 0 {
+			return &Token{
+				Raw:  raw,
+				Type: maybeKeyword,
+			}
 		}
 	}
 
 	return &Token{
-		Raw:  nonWhitespace,
+		Raw:  raw,
 		Type: IDENTIFIER,
 	}
 }

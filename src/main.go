@@ -20,5 +20,5 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	lexer.NewParser(string(scriptBytes)).Parse()
+	lexer.NewLexer(string(scriptBytes)).Parse()
 }
