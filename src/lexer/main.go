@@ -33,22 +33,23 @@ const (
 )
 
 var keywordMap = map[string]TokenType{
-	"if":  IF,
-	"for": FOR,
-	"let": LET,
-	"fn":  FUNCTION,
-	"=":   EQUALS,
-	"(":   OPEN_PARENTHESES,
-	")":   CLOSE_PARENTHESES,
-	"{":   OPEN_CURLY,
-	"}":   CLOSE_CURLY,
-	"[":   OPEN_SQUARE,
-	"]":   CLOSE_SQUARE,
-	"-":   MINUS,
-	"+":   PLUS,
-	"*":   STAR,
-	"/":   SLASH,
-	",":   COMMA,
+	"if":     IF,
+	"for":    FOR,
+	"let":    LET,
+	"fn":     FUNCTION,
+	"=":      EQUALS,
+	"(":      OPEN_PARENTHESES,
+	")":      CLOSE_PARENTHESES,
+	"{":      OPEN_CURLY,
+	"}":      CLOSE_CURLY,
+	"[":      OPEN_SQUARE,
+	"]":      CLOSE_SQUARE,
+	"-":      MINUS,
+	"+":      PLUS,
+	"*":      STAR,
+	"/":      SLASH,
+	",":      COMMA,
+	"return": RETURN,
 }
 
 var maxKeywordLen = func() int {
@@ -208,30 +209,38 @@ func (lexer *Lexer) readNext() *Token {
 		}
 	}
 
-	// raw := ""
-	//
-	// for !isWhitespace(lexer.peekCurrent()) && parseKeyword(string(lexer.peekNext())) == 0 {
-	// 	raw += string(lexer.peekCurrent())
-	// 	lexer.pointer++
-	//
-	// 	maybeKeyword := parseKeyword(raw)
-	//
-	// 	if len(raw) <= maxKeywordLen && maybeKeyword != 0 {
-	// 		return &Token{
-	// 			Raw:  raw,
-	// 			Type: maybeKeyword,
-	// 		}
-	// 	}
-	// }
-	//
-	// return &Token{
-	// 	Raw:  raw,
-	// 	Type: IDENTIFIER,
-	// }
+	raw := string(current)
 
-	// todo: parse multi character keywords and lastly, identifiers
+	for
+	// next exists
+	lexer.peekNext() != 0 &&
+		// next is not a keyword
+		parseKeyword(string(lexer.peekNext())) == 0 &&
+		// next is not whitespace
+		!isWhitespace(lexer.peekNext()) {
 
-	return nil
+		raw += string(lexer.peekNext())
+		lexer.pointer++
+
+		maybeKeyword := parseKeyword(raw)
+		if maybeKeyword != 0 {
+			lexer.pointer++
+
+			return &Token{
+				Raw:  raw,
+				Type: maybeKeyword,
+			}
+		}
+
+	}
+
+	lexer.pointer++
+
+	return &Token{
+		Raw:  raw,
+		Type: IDENTIFIER,
+	}
+
 }
 
 func (lexer *Lexer) Parse() []Token {
