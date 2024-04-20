@@ -8,7 +8,7 @@ let b = 21
 let c = sum(a, b)
 
 for index, value in [1, 2, 3] {
-
+    sum(index, value)
 }
 
 for key, value in {key = "value"} {
