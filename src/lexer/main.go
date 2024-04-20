@@ -30,6 +30,7 @@ var keywordMap = map[string]tokens.TokenType{
 	"else":   tokens.ELSE,
 	".":      tokens.DOT,
 	"while":  tokens.WHILE,
+	"nil":    tokens.NIL,
 }
 
 type Lexer struct {

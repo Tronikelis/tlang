@@ -30,6 +30,7 @@ const (
 	FALSE                       = "false"
 	ELSE                        = "else"
 	DOT                         = "dot"
+	NIL                         = "nil"
 )
 
 type Token struct {
