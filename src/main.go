@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"tlang/src/lexer"
@@ -20,5 +21,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	lexer.NewLexer(string(scriptBytes)).Parse()
+	tokens := lexer.NewLexer(string(scriptBytes)).Parse()
+
+	fmt.Printf("%#v\n", tokens)
 }

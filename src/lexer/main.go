@@ -48,6 +48,7 @@ var keywordMap = map[string]TokenType{
 	"+":   PLUS,
 	"*":   STAR,
 	"/":   SLASH,
+	",":   COMMA,
 }
 
 var maxKeywordLen = func() int {
@@ -178,6 +179,14 @@ func (lexer *Lexer) readNext() *Token {
 		return nil
 	}
 
+	if parseKeyword(string(current)) != 0 {
+		lexer.pointer++
+		return &Token{
+			Raw:  string(current),
+			Type: parseKeyword(string(current)),
+		}
+	}
+
 	if current == '"' {
 		lexer.pointer++
 		raw := lexer.parseString()
@@ -199,27 +208,40 @@ func (lexer *Lexer) readNext() *Token {
 		}
 	}
 
-	raw := ""
+	// raw := ""
+	//
+	// for !isWhitespace(lexer.peekCurrent()) && parseKeyword(string(lexer.peekNext())) == 0 {
+	// 	raw += string(lexer.peekCurrent())
+	// 	lexer.pointer++
+	//
+	// 	maybeKeyword := parseKeyword(raw)
+	//
+	// 	if len(raw) <= maxKeywordLen && maybeKeyword != 0 {
+	// 		return &Token{
+	// 			Raw:  raw,
+	// 			Type: maybeKeyword,
+	// 		}
+	// 	}
+	// }
+	//
+	// return &Token{
+	// 	Raw:  raw,
+	// 	Type: IDENTIFIER,
+	// }
 
-	for !isWhitespace(lexer.peekCurrent()) {
-		raw += string(lexer.peekCurrent())
+	// todo: parse multi character keywords and lastly, identifiers
 
-		maybeKeyword := parseKeyword(raw)
-
-		if len(raw) <= maxKeywordLen && maybeKeyword != 0 {
-			return &Token{
-				Raw:  raw,
-				Type: maybeKeyword,
-			}
-		}
-	}
-
-	return &Token{
-		Raw:  raw,
-		Type: IDENTIFIER,
-	}
+	return nil
 }
 
 func (lexer *Lexer) Parse() []Token {
-	return []Token{}
+	tokens := []Token{}
+
+	nextToken := lexer.readNext()
+	for nextToken != nil {
+		tokens = append(tokens, *nextToken)
+		nextToken = lexer.readNext()
+	}
+
+	return tokens
 }
