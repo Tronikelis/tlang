@@ -6,37 +6,39 @@ type VarValue interface {
 
 type Identifier = string
 
-type VarDec struct {
-	Identifier
-	Value VarValue
-}
-
 type VarString struct {
 	value string
 }
 
-func (*VarString) Var() {}
+func (v VarString) Var() {}
 
 type VarNumber struct {
 	value float64
 }
 
-func (*VarNumber) Var() {}
+func (v VarNumber) Var() {}
 
 type VarBool struct {
 	value bool
 }
 
-func (*VarBool) Var() {}
+func (v VarBool) Var() {}
 
 type VarArr struct {
 	value []VarValue
 }
 
-func (*VarArr) Var() {}
+func (v VarArr) Var() {}
 
 type VarMap struct {
 	value map[Identifier]VarValue
 }
 
-func (*VarMap) Var() {}
+func (v VarMap) Var() {}
+
+type VarFunc struct {
+	value Body
+	args  []Identifier
+}
+
+func (v VarFunc) Var() {}
