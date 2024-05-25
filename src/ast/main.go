@@ -4,11 +4,8 @@ import (
 	"tlang/src/tokens"
 )
 
-type Environment = map[Identifier]VarValue
-
 type Body struct {
-	environment Environment
-	statements  []Statement
+	statements []Statement
 }
 
 type Ast struct {
