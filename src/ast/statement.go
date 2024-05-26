@@ -13,7 +13,8 @@ func (v VarStatement) Statement()
 
 type IfStatement struct {
 	condition VarValue
-	body      Body
+	tru       Body
+	fal       Body
 }
 
 func (v IfStatement) Statement()
@@ -24,3 +25,12 @@ type WhileStatement struct {
 }
 
 func (v WhileStatement) Statement()
+
+type ForStatement struct {
+	key  VarNumber
+	item VarValue
+	over VarValue
+	body Body
+}
+
+func (v ForStatement) Statement()
